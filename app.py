@@ -8,7 +8,7 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'fallback-key-for-development')
 
 # ✅ Replace with your local PostgreSQL credentials
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://rushi:531241789@localhost/flaskappdb'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:[YOUR-PASSWORD]@db.ipjwyakptfzyxpdjnsfs.supabase.co:5432/postgres'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -66,3 +66,4 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
     app.run(debug=True)
+
