@@ -7,8 +7,8 @@ from datetime import datetime
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'fallback-key-for-development')
 
-# ✅ Replace with your local PostgreSQL credentials
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234@Strong@db.ipjwyakptfzyxpdjnsfs.supabase.co:5432/postgres'
+# ✅ Corrected: URL-encoded password
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234%40Strong@db.ipjwyakptfzyxpdjnsfs.supabase.co:5432/postgres'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -56,14 +56,13 @@ def school_form():
             return redirect(url_for('school_form'))
 
         except Exception as e:
-            print("Error:", e)
+            print("❌ Error during submission:", e)
             return "Something went wrong. Check your inputs and try again."
 
-    return render_template('school_form.html')  # ✅ Use the new HTML file
+    return render_template('school_form.html')
 
 # ✅ Run the app
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
     app.run(debug=True)
-
