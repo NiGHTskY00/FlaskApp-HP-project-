@@ -1,68 +1,90 @@
 import os
+import traceback
+import requests
 from flask import Flask, render_template, request, redirect, url_for
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.dialects.postgresql import JSON
 from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'fallback-key-for-development')
 
-# ✅ Corrected: URL-encoded password
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234%40Strong@db.ipjwyakptfzyxpdjnsfs.supabase.co:5432/postgres'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# ✅ Supabase API URL and API Key
+SUPABASE_API_URL = "https://ipjwyakptfzyxpdjnsfs.supabase.co/rest/v1"  # Supabase API URL
+SUPABASE_API_KEY = "your-anon-key-here"  # Replace with your Supabase anon API key
 
-db = SQLAlchemy(app)
+# Headers for Supabase API authentication
+headers = {
+    "apikey": SUPABASE_API_KEY,
+    "Authorization": f"Bearer {SUPABASE_API_KEY}",
+    "Content-Type": "application/json"
+}
 
-# ✅ School Infrastructure Model
-class SchoolInfraForm(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    district = db.Column(db.String(100), nullable=False)
-    school = db.Column(db.String(150), nullable=False)
-    udise_code = db.Column(db.String(20), nullable=False)
-    classrooms = db.Column(db.Integer, nullable=False)
-    benches = db.Column(db.Integer, nullable=False)
-    class_data = db.Column(JSON, nullable=False)
-
-# ✅ Main Route
+# ✅ Main Route to Show the Form
 @app.route('/', methods=['GET', 'POST'])
 def school_form():
     if request.method == 'POST':
         try:
+            # Get form data from the HTML form
             district = request.form['district']
             school = request.form['school']
             udise = request.form['udise']
             classrooms = int(request.form['classrooms'])
             benches = int(request.form['benches'])
 
+            # Collect class data for 6th to 12th grade
             class_data = {}
             for i in range(6, 13):
                 boys = int(request.form.get(f'boys{i}', 0))
                 girls = int(request.form.get(f'girls{i}', 0))
-                total = boys + girls
+                total = boys + girls  # Calculate total students in each class
                 class_data[f'Class {i}'] = {'boys': boys, 'girls': girls, 'total': total}
 
-            submission = SchoolInfraForm(
-                district=district,
-                school=school,
-                udise_code=udise,
-                classrooms=classrooms,
-                benches=benches,
-                class_data=class_data
-            )
-            db.session.add(submission)
-            db.session.commit()
+            # Prepare data to be sent to Supabase API
+            submission_data = {
+                "district": district,
+                "school": school,
+                "udise_code": udise,
+                "classrooms": classrooms,
+                "benches": benches,
+                "class_data": class_data,  # Class data for each grade
+                "timestamp": datetime.utcnow().isoformat()  # Timestamp when the data is submitted
+            }
 
-            return redirect(url_for('school_form'))
+            # Make POST request to Supabase API to insert data into the table
+            response = requests.post(
+                f"{SUPABASE_API_URL}/school_infra_form",  # Supabase table endpoint
+                headers=headers,
+                json=submission_data  # Data will be sent as JSON
+            )
+
+            # Log the response for debugging
+            print(f"Response Status Code: {response.status_code}")
+            print(f"Response Text: {response.text}")
+
+            # If the POST request is successful, redirect to the thank you page
+            if response.status_code == 201:
+                print("✅ Data submitted successfully to Supabase.")
+                return redirect(url_for('thank_you'))  # Redirect to thank_you page after successful submission
+            else:
+                print(f"❌ Error: {response.text}")
+                return "Something went wrong. Please try again."
 
         except Exception as e:
+            # Catch exceptions and print them
             print("❌ Error during submission:", e)
+            traceback.print_exc()
             return "Something went wrong. Check your inputs and try again."
 
-    return render_template('school_form.html')
+    return render_template('school_form.html')  # Render the form template for GET request
+
+# ✅ Thank You Route
+@app.route('/thank_you')
+def thank_you():
+    return render_template('thank_you.html')  # Redirect to the thank you page
 
 # ✅ Run the app
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-    app.run(debug=True)
+    try:
+        app.run(debug=True)  # Run the app in debug mode for development
+    except Exception as e:
+        print("❌ Failed to start Flask app:")
+        traceback.print_exc()

@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -10,6 +11,7 @@
       "District C": ["School C1", "School C2", "School C3"]
     };
 
+    // Function to load districts into the dropdown
     function loadDistricts() {
       const districtSelect = document.getElementById('district');
       districtSelect.innerHTML = '<option value="">--Select District--</option>';
@@ -18,6 +20,7 @@
       });
     }
 
+    // Function to load schools based on the selected district
     function loadSchools() {
       const selectedDistrict = document.getElementById('district').value;
       const schoolSelect = document.getElementById('school');
@@ -29,12 +32,14 @@
       }
     }
 
+    // Function to update total students count (boys + girls)
     function updateTotal(i) {
       const boys = parseInt(document.getElementById(`boys${i}`).value) || 0;
       const girls = parseInt(document.getElementById(`girls${i}`).value) || 0;
       document.getElementById(`total${i}`).value = boys + girls;
     }
 
+    // Function to validate form before submission
     function validateForm() {
       const requiredFields = ['district', 'school', 'udise', 'classrooms', 'benches'];
       for (let id of requiredFields) {
@@ -55,21 +60,29 @@
       return true;
     }
 
-    function resetForm() {
-      document.getElementById("infraForm").reset();
-      loadDistricts();
-      document.getElementById("school").innerHTML = '<option value="">--Select School--</option>';
-      for (let i = 6; i <= 12; i++) {
-        document.getElementById(`total${i}`).value = '';
-      }
+    // Function to show success message (Pop-up) and hide form
+    function showSuccessMessage() {
+      const form = document.getElementById('infraForm');
+      const messageBox = document.getElementById('thankYouMessage');
+      form.style.display = 'none';  // Hide the form
+      messageBox.style.display = 'block';  // Show the thank-you message
     }
 
     window.onload = loadDistricts;
   </script>
 </head>
 <body>
-  <form id="infraForm" method="POST" onsubmit="return validateForm()">
+  <!-- Thank You Message (Initially Hidden) -->
+  <div id="thankYouMessage" class="message" style="display:none;">
+    <h2>🎉 Thank you for your submission!</h2>
+    <p>Your form has been successfully submitted.</p>
+    <button onclick="window.location.reload()">Go back and fill the form again</button>
+  </div>
+
+  <!-- Form for School Infrastructure Data -->
+  <form id="infraForm" method="POST" onsubmit="event.preventDefault(); if(validateForm()) { showSuccessMessage(); }">
     <h2>📊 School Infrastructure Form</h2>
+    <p>Please fill out the form carefully.</p>
 
     <label for="district">District:</label>
     <select id="district" name="district" onchange="loadSchools()" required></select>
@@ -104,7 +117,7 @@
     </table>
 
     <button type="submit">Submit</button>
-    <button type="button" onclick="resetForm()" style="background-color: #bdc3c7;">Reset</button>
+    <button type="button" onclick="window.location.reload()" style="background-color: #bdc3c7;">Reset</button>
   </form>
 </body>
 </html>
