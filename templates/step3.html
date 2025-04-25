@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>School Infrastructure Data Collection Form</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Main Container -->
+    <div class="container">
+        <h2 class="title">Step 3: Enter Students per Class (6-12)</h2>
+
+        <p class="instruction">
+            Please enter the number of boys and girls in each class from 6th to 12th. You can go back to edit previous steps if needed.
+        </p>
+
+        <!-- Step 3 Form -->
+        <form method="POST" class="form-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Class</th>
+                        <th>Boys</th>
+                        <th>Girls</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <script>
+                        for (let i = 6; i <= 12; i++) {
+                            document.write(`
+                                <tr>
+                                    <td>Class ${i}</td>
+                                    <td><input type="number" id="boys${i}" name="boys${i}" min="0" oninput="updateTotal(${i})" required></td>
+                                    <td><input type="number" id="girls${i}" name="girls${i}" min="0" oninput="updateTotal(${i})" required></td>
+                                    <td><input type="number" id="total${i}" name="total${i}" readonly style="background-color:#f0f0f0;"></td>
+                                </tr>
+                            `);
+                        }
+
+                        // Function to update total number of students
+                        function updateTotal(classNumber) {
+                            const boys = document.getElementById(`boys${classNumber}`).value;
+                            const girls = document.getElementById(`girls${classNumber}`).value;
+                            const total = document.getElementById(`total${classNumber}`);
+                            total.value = parseInt(boys || 0) + parseInt(girls || 0);
+                        }
+                    </script>
+                </tbody>
+            </table>
+
+            <div class="button-container">
+                <button type="submit" class="btn submit-btn">Submit</button>
+            </div>
+        </form>
+
+        <!-- Back Button -->
+        <div class="back-container">
+            <form action="{{ url_for('step2') }}" method="GET">
+                <button type="submit" class="btn back-btn">Back to previous page</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer Section -->
+    <footer class="footer">
+        <p>&copy; 2025 School Infrastructure Data Collection | All rights reserved.</p>
+    </footer>
+</body>
+</html>

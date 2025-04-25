@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Infrastructure Data Collection Form</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <form method="POST">
+            <h2>Step 1: School Infrastructure Form - Basic Details</h2>
+            
+            <p class="intro-text">Please provide accurate information about the school infrastructure to help us assess the required resources and ensure proper planning across multiple schools.</p>
+
+            <!-- Name and Designation -->
+            <label for="name">Your Name:</label>
+            <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+
+            <label for="designation">Your Designation:</label>
+            <input type="text" id="designation" name="designation" placeholder="Enter your designation" required>
+
+            <!-- District and School Selection -->
+            <label for="district">District:</label>
+            <select id="district" name="district" required>
+                <option value="">--Select District--</option>
+                {% for district in districts %}
+                    <option value="{{ district }}">{{ district }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="school">School Name:</label>
+            <select id="school" name="school" required>
+                <option value="">--Select School--</option>
+            </select>
+
+            <!-- UDISE Code -->
+            <label for="udise">UDISE Code:</label>
+            <input type="text" id="udise" name="udise" maxlength="11" placeholder="Enter 11-digit UDISE code" required pattern="\d{11}" title="UDISE code must be exactly 11 digits">
+
+            <!-- Number of Classrooms -->
+            <label for="classrooms">Number of Classrooms:</label>
+            <input type="number" id="classrooms" name="classrooms" min="1" required>
+
+            <button type="submit">Next</button>
+        </form>
+    </div>
+
+    <script>
+        const schoolData = {
+            "District A": ["School A1", "School A2", "School A3"],
+            "District B": ["School B1", "School B2"],
+            "District C": ["School C1", "School C2", "School C3"]
+        };
+
+        // Function to load schools based on selected district
+        document.getElementById('district').addEventListener('change', function() {
+            const selectedDistrict = this.value;
+            const schoolSelect = document.getElementById('school');
+            schoolSelect.innerHTML = '<option value="">--Select School--</option>';
+            if (schoolData[selectedDistrict]) {
+                schoolData[selectedDistrict].forEach(school => {
+                    schoolSelect.innerHTML += `<option value="${school}">${school}</option>`;
+                });
+            }
+        });
+    </script>
+</body>
+</html>

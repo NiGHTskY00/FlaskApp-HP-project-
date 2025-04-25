@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Infrastructure Data Collection Form</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Main Container -->
+    <div class="container">
+        <h2 class="title">Step 2: Enter Number of Benches</h2>
+
+        <p class="instruction">
+            Please provide the number of benches for each classroom. If you made a mistake on the previous page, use the "Back" button to edit the number of classrooms.
+        </p>
+
+        <!-- Step 2 Form -->
+        <form method="POST" class="form-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Classroom Number</th>
+                        <th>Number of Benches</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in range(1, classrooms + 1) %}
+                        <tr>
+                            <td>
+                                <label for="classroom_{{ i }}" class="classroom-label">Classroom {{ i }}:</label>
+                            </td>
+                            <td>
+                                <input type="number" id="classroom_{{ i }}" name="classroom_{{ i }}" 
+                                       value="{{ step_data['benches'].get('classroom_' ~ i, '') }}" 
+                                       class="classroom-input" 
+                                       placeholder="Enter number of benches for Classroom {{ i }}" 
+                                       title="Enter number of benches for Classroom {{ i }}" required>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Submit Button -->
+            <div class="button-container">
+                <button type="submit" class="btn submit-btn">Next</button>
+            </div>
+        </form>
+
+        <!-- Back Button -->
+        <div class="back-container">
+            <form action="{{ url_for('step1') }}" method="GET">
+                <button type="submit" class="btn back-btn">Back to previous page</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer Section -->
+    <footer class="footer">
+        <p>&copy; 2025 School Infrastructure Data Collection | All rights reserved.</p>
+    </footer>
+</body>
+</html>
